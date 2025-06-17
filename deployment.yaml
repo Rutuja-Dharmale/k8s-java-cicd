@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: java-container
-        image: RutujaDharmale/java-k8s-demo:latest
+        image: rutujadharmale2211/java-k8s-demo:latest
         ports:
         - containerPort: 8080
