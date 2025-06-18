@@ -1,0 +1,47 @@
+pipeline {
+  agent any
+
+  tools {
+    maven 'maven3'
+  }
+
+  environment {
+    IMAGE = "RutujaDharmale/java-k8s-demo"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git(url: 'https://github.com/Rutuja-Dharmale/k8s-java-cicd.git', branch: 'main')
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+
+    stage('Docker Build & Push') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+          sh '''
+            echo $PASS | docker login -u $USER --password-stdin
+            docker build -t $IMAGE .
+            docker push $IMAGE
+          '''
+        }
+      }
+    }
+
+    stage('K8s Deploy') {
+      steps {
+        sh '''
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
+        '''
+      }
+    }
+  }
+}
+
